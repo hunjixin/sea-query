@@ -78,7 +78,19 @@ impl TableBuilder for MysqlQueryBuilder {
                 ColumnType::Date => "date".into(),
                 ColumnType::Interval(_, _) => "unsupported".into(),
                 ColumnType::Binary(length) => match length {
-                    Some(length) => format!("binary({})", length),
+                    Some(length) => {
+                        if *length < 255 {
+                            format!("binary({})", length)
+                        } else if *length < 65535 {
+                            "blob".into()
+                        } else if *length < 777215 {
+                            "mediumblob".into()
+                        } else if *length < 294967295 {
+                            "longblob".into()
+                        } else {
+                            "unsupported".into()
+                        }
+                    }
                     None => "blob".into(),
                 },
                 ColumnType::Boolean => "bool".into(),
