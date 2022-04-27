@@ -81,11 +81,11 @@ impl TableBuilder for MysqlQueryBuilder {
                     Some(length) => {
                         if *length < 255 {
                             format!("binary({})", length)
-                        } else if *length < 65535 {
+                        } else if *length < 65535 {      //64KiB
                             "blob".into()
-                        } else if *length < 777215 {
+                        } else if *length < 16777215 {   //16MiB
                             "mediumblob".into()
-                        } else if *length < 294967295 {
+                        } else if *length < 4294967295 { //4GiB
                             "longblob".into()
                         } else {
                             "unsupported".into()
